@@ -1,6 +1,8 @@
 import React from 'react'
 import { Input, Select } from 'antd'
 
+import PokeStore from '../../store/PokeStore'
+
 const { Search } = Input
 const { Option } = Select
 
@@ -15,6 +17,7 @@ function SideBar () {
       <Select
         className="side-bar__typeSelect"
         defaultValue="Select items per page"
+        onChange={limit => PokeStore.setLimit(limit)}
       >
         <Option value="10">10</Option>
         <Option value="20">20</Option>

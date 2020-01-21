@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react'
-import { Card, Pagination } from 'antd'
+import { Pagination } from 'antd'
 
+import ItemCard from './ItemCard'
 import PokeStore from '../../store/PokeStore'
 
 function PokeList (props) {
@@ -11,17 +12,16 @@ function PokeList (props) {
     <div className="poke-content">
 
       <div className="poke-list">
-        {PokeStore.list.map((item, index) => {
-          return <Card
-            className="poke-card"
+        {PokeStore.list.map((item, index) => (
+          <ItemCard
+            item={item}
+            index={index}
             key={index}
-            title={item.name}
-            onClick={() => PokeStore.loadDetails(item.name)}
-            loading={true}
-          >
-          </Card>
-        })}
+          />
+        ))}
       </div>
+
+      {/* Hardcode total */}
 
       <Pagination
         className="poke-pagination"

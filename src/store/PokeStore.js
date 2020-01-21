@@ -4,6 +4,7 @@ import {
   decorate
 } from 'mobx'
 import axios from 'axios'
+import scrollToTop from '../utils/scrollToTop'
 
 class PokeStore {
   list = []
@@ -21,16 +22,31 @@ class PokeStore {
 
     this.list = response.data.results
     this.itemsCount = response.data.count
+
+    this.loadDetailsForList(response.data.results)
   }
 
-  loadDetails = async name => {
-    const response = await axios.get(`${process.env.REACT_APP_POKEMONS_API}/${name}`)
+  loadDetailsForList = async list => {
+    const promiseList = []
 
-    this.targetPokemon = response.data
+    list.forEach(item => {
+      promiseList.push(axios.get(`${process.env.REACT_APP_POKEMONS_API}/${item.name}`))
+    })
+
+    const response = await Promise.all(promiseList)
+    const newList = response.map(item => ({
+      name: item.data.name,
+      stats: item.data.stats.map(statsItem => statsItem.stat.name),
+      types: item.data.types.map(typesItem => ({ text: typesItem.type.name, selected: false })),
+      avatar: item.data.sprites.front_default
+    }))
+
+    this.list = newList
   }
 
   setOffsetByPage = page => {
     this.loadListParams.offset = (page - 1) * this.loadListParams.limit
+    scrollToTop(300)
     this.loadList()
   }
 
@@ -46,8 +62,9 @@ decorate(PokeStore, {
   targetPokemon: observable,
   loadListParams: observable,
   loadList: action,
-  loadDetails: action,
-  setOffsetByPage: action
+  loadDetailsForList: action,
+  setOffsetByPage: action,
+  setLimit: action
 })
 
 export default new PokeStore()
