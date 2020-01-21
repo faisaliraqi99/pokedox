@@ -1,22 +1,32 @@
 import React from 'react'
 import 'antd/dist/antd.css'
 import './sass/main.sass'
-import { Row, Col } from 'antd'
+import { Layout } from 'antd'
 
 import SideBar from './components/side-bar/SideBar'
 import PokeList from './components/poke-list/PokeList'
 
+const { Sider } = Layout
+const siderWidth = 280
+
 function App () {
   return (
-    <div className="App">
-      <Row>
-        <Col span={4}>
+    <div className="main-page">
+      <Layout>
+        <Sider
+          style={{
+            overflow: 'auto',
+            height: '100vh',
+            position: 'fixed'
+          }}
+          width={siderWidth}
+        >
           <SideBar />
-        </Col>
-        <Col span={20}>
-          <PokeList />
-        </Col>
-      </Row>
+        </Sider >
+      </Layout>
+      <Layout style={{ marginLeft: siderWidth }}>
+        <PokeList />
+      </Layout>
     </div>
   )
 }
