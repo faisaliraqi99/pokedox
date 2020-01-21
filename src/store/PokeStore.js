@@ -8,7 +8,6 @@ import scrollToTop from '../utils/scrollToTop'
 
 class PokeStore {
   list = []
-  oldList = []
   itemsCount = 0
   targetPokemon = {}
 
@@ -19,7 +18,8 @@ class PokeStore {
 
   filters = {
     searchName: '',
-    typesName: []
+    typesName: [],
+    list: this.list
   }
 
   loadList = async () => {
@@ -49,19 +49,15 @@ class PokeStore {
     }))
 
     this.list = newList
-    this.oldList = newList
+    this.filters.list = newList
   }
 
   filterList = () => {
-    // Доделать фильтр
-    const newList = this.list.filter(item => {
-      if (item.name.includes(this.filters.searchName)) return true
-      return false
+    const newList = this.filters.list.filter(item => {
+      return item.name.includes(this.filters.searchName)
     })
 
     this.list = newList
-
-    if (!this.filters.searchName) this.loadList()
   }
 
   setOffsetByPage = page => {
