@@ -8,11 +8,18 @@ import scrollToTop from '../utils/scrollToTop'
 
 class PokeStore {
   list = []
+  oldList = []
   itemsCount = 0
   targetPokemon = {}
+
   loadListParams = {
     offset: 0,
     limit: 10
+  }
+
+  filters = {
+    searchName: '',
+    typesName: []
   }
 
   loadList = async () => {
@@ -42,6 +49,19 @@ class PokeStore {
     }))
 
     this.list = newList
+    this.oldList = newList
+  }
+
+  filterList = () => {
+    // Доделать фильтр
+    const newList = this.list.filter(item => {
+      if (item.name.includes(this.filters.searchName)) return true
+      return false
+    })
+
+    this.list = newList
+
+    if (!this.filters.searchName) this.loadList()
   }
 
   setOffsetByPage = page => {
@@ -54,17 +74,25 @@ class PokeStore {
     this.loadListParams.limit = limit
     this.loadList()
   }
+
+  setSearchName = text => {
+    this.filters.searchName = text
+    this.filterList()
+  }
 }
 
 decorate(PokeStore, {
   list: observable,
   itemsCount: observable,
   targetPokemon: observable,
+  filters: observable,
   loadListParams: observable,
   loadList: action,
   loadDetailsForList: action,
+  filterList: action,
   setOffsetByPage: action,
-  setLimit: action
+  setLimit: action,
+  setSearchName: action
 })
 
 export default new PokeStore()

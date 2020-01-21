@@ -12,7 +12,7 @@ function SideBar () {
       <Search
         className="side-bar__searchNameInput"
         placeholder="Search by name"
-        onSearch={value => console.log(value)}
+        onChange={event => PokeStore.setSearchName(event.target.value)}
       />
       <Select
         className="side-bar__typeSelect"
