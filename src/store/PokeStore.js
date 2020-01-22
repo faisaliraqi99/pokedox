@@ -1,6 +1,7 @@
 import {
   observable,
   action,
+  computed,
   decorate
 } from 'mobx'
 import axios from 'axios'
@@ -9,17 +10,20 @@ import scrollToTop from '../utils/scrollToTop'
 class PokeStore {
   list = []
   itemsCount = 0
-  targetPokemon = {}
-
   loadListParams = {
     offset: 0,
     limit: 10
   }
 
-  filters = {
-    searchName: '',
-    typesName: [],
-    list: this.list
+  setLimit = limit => {
+    this.loadListParams.limit = limit
+    this.loadList()
+  }
+
+  setOffsetByPage = page => {
+    this.loadListParams.offset = (page - 1) * this.loadListParams.limit
+    scrollToTop(300)
+    this.loadList()
   }
 
   loadList = async () => {
@@ -52,7 +56,18 @@ class PokeStore {
     this.filters.list = newList
   }
 
-  filterList = () => {
+  filters = {
+    searchName: '',
+    types: [],
+    list: this.list
+  }
+
+  setFilterSearchName = text => {
+    this.filters.searchName = text
+    this.filterListByName()
+  }
+
+  filterListByName = () => {
     const newList = this.filters.list.filter(item => {
       return item.name.includes(this.filters.searchName)
     })
@@ -60,35 +75,50 @@ class PokeStore {
     this.list = newList
   }
 
-  setOffsetByPage = page => {
-    this.loadListParams.offset = (page - 1) * this.loadListParams.limit
-    scrollToTop(300)
-    this.loadList()
+  get typesOption () {
+    const newTypesOption = []
+    const fullList = this.filters.list
+
+    for (let listItem = 0; listItem < fullList.length; listItem++) {
+      for (const typesItem of fullList[listItem].types) {
+        if (!newTypesOption.includes(typesItem.text)) newTypesOption.push(typesItem.text)
+      }
+    }
+
+    return newTypesOption
   }
 
-  setLimit = limit => {
-    this.loadListParams.limit = limit
-    this.loadList()
+  setFilterTypes = arr => {
+    this.filters.types = arr
+    this.filterListByTypes()
   }
 
-  setSearchName = text => {
-    this.filters.searchName = text
-    this.filterList()
+  filterListByTypes = () => {
+    const newList = this.filters.list.map(item => ({
+      ...item,
+      types: item.types.map(itemType => ({
+        ...itemType,
+        selected: Boolean(this.filters.types.includes(itemType.text))
+      }))
+    }))
+
+    this.list = newList
   }
 }
 
 decorate(PokeStore, {
   list: observable,
   itemsCount: observable,
-  targetPokemon: observable,
   filters: observable,
+  typesOption: computed,
   loadListParams: observable,
   loadList: action,
   loadDetailsForList: action,
-  filterList: action,
+  filterListByName: action,
   setOffsetByPage: action,
   setLimit: action,
-  setSearchName: action
+  setFilterSearchName: action,
+  setFilterTypes: action
 })
 
 export default new PokeStore()

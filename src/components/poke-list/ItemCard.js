@@ -30,7 +30,10 @@ function ItemCard ({ item, index }) {
           <ul className="poke-card__list">
             {item.types.map((typesItem, index) => <li
               key={index}
-              style={{ backgroundColor: typesColor[typesItem.text] ? typesColor[typesItem.text] : null }}
+              style={{
+                backgroundColor: typesColor[typesItem.text] ? typesColor[typesItem.text] : null,
+                border: `5px solid ${typesItem.selected ? 'red' : 'transparent'}`
+              }}
             >{typesItem.text}</li>)}
           </ul>
         </>
