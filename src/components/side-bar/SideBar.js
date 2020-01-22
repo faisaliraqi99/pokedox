@@ -8,7 +8,6 @@ const { Search } = Input
 const { Option } = Select
 
 function SideBar () {
-  console.log(PokeStore.typesOption)
   return (
     <div className="side-bar">
       <Search

@@ -21,11 +21,10 @@ function PokeList (props) {
         ))}
       </div>
 
-      {/* Hardcode total */}
-
       <Pagination
         className="poke-pagination"
-        total={500}
+        total={PokeStore.itemsCount}
+        pageSize={PokeStore.loadListParams.limit}
         defaultCurrent={1}
         onChange={page => PokeStore.setOffsetByPage(page)}
       />

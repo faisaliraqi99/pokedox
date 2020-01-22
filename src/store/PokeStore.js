@@ -54,6 +54,7 @@ class PokeStore {
 
     this.list = newList
     this.filters.list = newList
+    this.filterListByName()
   }
 
   filters = {
@@ -73,6 +74,7 @@ class PokeStore {
     })
 
     this.list = newList
+    this.filterListByTypes()
   }
 
   get typesOption () {
@@ -94,13 +96,17 @@ class PokeStore {
   }
 
   filterListByTypes = () => {
-    const newList = this.filters.list.map(item => ({
-      ...item,
-      types: item.types.map(itemType => ({
-        ...itemType,
-        selected: Boolean(this.filters.types.includes(itemType.text))
-      }))
-    }))
+    const newList = this.list.map(item => {
+      return {
+        ...item,
+        types: item.types.map(itemType => {
+          return {
+            ...itemType,
+            selected: !!this.filters.types.includes(itemType.text)
+          }
+        })
+      }
+    })
 
     this.list = newList
   }
