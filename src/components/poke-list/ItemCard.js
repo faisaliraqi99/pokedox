@@ -31,8 +31,7 @@ function ItemCard ({ item, index }) {
             {item.types.map((typesItem, index) => <li
               key={index}
               style={{
-                backgroundColor: typesColor[typesItem.text] ? typesColor[typesItem.text] : null,
-                border: `5px solid ${typesItem.selected ? 'red' : 'transparent'}`
+                backgroundColor: typesColor[typesItem.text] ? typesColor[typesItem.text] : null
               }}
             >{typesItem.text}</li>)}
           </ul>
