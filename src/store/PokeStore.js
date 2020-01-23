@@ -9,6 +9,7 @@ import scrollToTop from '../utils/scrollToTop'
 
 class PokeStore {
   list = []
+  listNames = []
   itemsCount = 0
   loadListParams = {
     offset: 0,
@@ -28,19 +29,24 @@ class PokeStore {
 
   loadList = async () => {
     const response = await axios.get(process.env.REACT_APP_POKEMONS_API, {
-      params: this.loadListParams
+      params: {
+        limit: 1000
+      }
     })
 
-    this.list = response.data.results
+    this.listNames = response.data.results
+    this.filters.listNames = response.data.results
     this.itemsCount = response.data.count
 
-    this.loadDetailsForList(response.data.results)
+    this.loadDetailsForList()
   }
 
-  loadDetailsForList = async list => {
+  loadDetailsForList = async () => {
     const promiseList = []
+    const offset = this.loadListParams.offset
+    const limit = this.loadListParams.limit
 
-    list.forEach(item => {
+    this.listNames.slice(offset, limit).forEach(item => {
       promiseList.push(axios.get(`${process.env.REACT_APP_POKEMONS_API}/${item.name}`))
     })
 
@@ -54,13 +60,13 @@ class PokeStore {
 
     this.list = newList
     this.filters.list = newList
-    this.filterListByName()
   }
 
   filters = {
     searchName: '',
     types: [],
-    list: this.list
+    list: this.list,
+    listNames: this.listNames
   }
 
   setFilterSearchName = text => {
@@ -69,11 +75,13 @@ class PokeStore {
   }
 
   filterListByName = () => {
-    const newList = this.filters.list.filter(item => {
+    const newList = this.filters.listNames.filter(item => {
       return item.name.includes(this.filters.searchName)
     })
 
-    this.list = newList
+    this.listNames = newList
+    this.loadDetailsForList()
+    this.itemsCount = newList.length
     this.filterListByTypes()
   }
 
@@ -114,6 +122,7 @@ class PokeStore {
 
 decorate(PokeStore, {
   list: observable,
+  listNames: observable,
   itemsCount: observable,
   filters: observable,
   typesOption: computed,
