@@ -1,7 +1,6 @@
 import {
   observable,
   action,
-  computed,
   decorate
 } from 'mobx'
 import axios from 'axios'
@@ -10,25 +9,30 @@ import scrollToTop from '../utils/scrollToTop'
 class PokeStore {
   list = []
   listNames = []
+  listTypes = []
   itemsCount = 0
-  loadListParams = {
+
+  pageSize = 10
+  currentPage = 1
+
+  sliceList = {
     offset: 0,
     limit: 10
   }
 
-  setLimit = limit => {
-    this.loadListParams.limit = limit
-    this.loadList()
+  setPageSize = size => {
+    this.pageSize = +size
+    this.loadDetailsForList()
   }
 
-  setOffsetByPage = page => {
-    this.loadListParams.offset = (page - 1) * this.loadListParams.limit
+  setPage = page => {
+    this.currentPage = page
     scrollToTop(300)
-    this.loadList()
+    this.loadDetailsForList()
   }
 
   loadList = async () => {
-    const response = await axios.get(process.env.REACT_APP_POKEMONS_API, {
+    const response = await axios.get(`${process.env.REACT_APP_POKEMONS_API}/pokemon`, {
       params: {
         limit: 1000
       }
@@ -39,15 +43,16 @@ class PokeStore {
     this.itemsCount = response.data.count
 
     this.loadDetailsForList()
+    this.loadTypesList()
   }
 
   loadDetailsForList = async () => {
     const promiseList = []
-    const offset = this.loadListParams.offset
-    const limit = this.loadListParams.limit
+    const offset = (this.currentPage - 1) * this.sliceList.limit
+    const limit = this.currentPage * this.pageSize
 
     this.listNames.slice(offset, limit).forEach(item => {
-      promiseList.push(axios.get(`${process.env.REACT_APP_POKEMONS_API}/${item.name}`))
+      promiseList.push(axios.get(`${process.env.REACT_APP_POKEMONS_API}/pokemon/${item.name}`))
     })
 
     const response = await Promise.all(promiseList)
@@ -62,9 +67,14 @@ class PokeStore {
     this.filters.list = newList
   }
 
+  loadTypesList = async () => {
+    const response = await axios.get(`${process.env.REACT_APP_POKEMONS_API}/type`)
+
+    this.listTypes = response.data.results
+  }
+
   filters = {
     searchName: '',
-    types: [],
     list: this.list,
     listNames: this.listNames
   }
@@ -82,20 +92,6 @@ class PokeStore {
     this.listNames = newList
     this.loadDetailsForList()
     this.itemsCount = newList.length
-    this.filterListByTypes()
-  }
-
-  get typesOption () {
-    const newTypesOption = []
-    const fullList = this.filters.list
-
-    for (let listItem = 0; listItem < fullList.length; listItem++) {
-      for (const typesItem of fullList[listItem].types) {
-        if (!newTypesOption.includes(typesItem.text)) newTypesOption.push(typesItem.text)
-      }
-    }
-
-    return newTypesOption
   }
 
   setFilterTypes = arr => {
@@ -103,35 +99,56 @@ class PokeStore {
     this.filterListByTypes()
   }
 
-  filterListByTypes = () => {
-    const newList = this.list.map(item => {
-      return {
-        ...item,
-        types: item.types.map(itemType => {
-          return {
-            ...itemType,
-            selected: !!this.filters.types.includes(itemType.text)
-          }
-        })
-      }
+  filterListByTypes = async () => {
+    const promiseList = []
+
+    this.filters.types.forEach(item => {
+      promiseList.push(axios.get(`${process.env.REACT_APP_POKEMONS_API}/type/${item}`))
     })
 
-    this.list = newList
+    const response = await Promise.all(promiseList)
+    const concatedArr = []
+
+    response.forEach(item => {
+      item.data.pokemon.forEach(item => {
+        concatedArr.push(item.pokemon)
+      })
+    })
+
+    const tmpArray = []
+
+    const arrOfTypedNames = concatedArr.filter((item) => {
+      if (tmpArray.indexOf(item.name) === -1) {
+        tmpArray.push(item.name)
+        return true
+      }
+      return false
+    })
+
+    if (!arrOfTypedNames.length) {
+      this.loadList()
+    } else {
+      this.listNames = arrOfTypedNames
+      this.loadDetailsForList()
+      this.itemsCount = arrOfTypedNames.length
+    }
   }
 }
 
 decorate(PokeStore, {
   list: observable,
   listNames: observable,
+  listTypes: observable,
   itemsCount: observable,
+  pageSize: observable,
   filters: observable,
-  typesOption: computed,
-  loadListParams: observable,
   loadList: action,
   loadDetailsForList: action,
+  loadTypesList: action,
   filterListByName: action,
-  setOffsetByPage: action,
-  setLimit: action,
+  filterListByTypes: action,
+  setPage: action,
+  setPageSize: action,
   setFilterSearchName: action,
   setFilterTypes: action
 })

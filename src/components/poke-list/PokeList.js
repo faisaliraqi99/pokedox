@@ -24,9 +24,9 @@ function PokeList (props) {
       <Pagination
         className="poke-pagination"
         total={PokeStore.itemsCount}
-        pageSize={PokeStore.loadListParams.limit}
+        pageSize={PokeStore.pageSize}
         defaultCurrent={1}
-        onChange={page => PokeStore.setOffsetByPage(page)}
+        onChange={page => PokeStore.setPage(page)}
       />
 
     </div>

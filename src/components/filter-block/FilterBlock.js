@@ -22,14 +22,14 @@ function FilterBlock () {
         onChange={arr => PokeStore.setFilterTypes(arr)}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
-        {PokeStore.typesOption.map((item, index) => (
-          <Option value={item} key={index}>{item}</Option>
+        {PokeStore.listTypes.map((item, index) => (
+          <Option value={item.name} key={index}>{item.name}</Option>
         ))}
       </Select>
       <Select
         className="filter-block__typeSelect"
         placeholder="Select items per page"
-        onChange={limit => PokeStore.setLimit(limit)}
+        onChange={limit => PokeStore.setPageSize(limit)}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
         <Option value="10">10</Option>
