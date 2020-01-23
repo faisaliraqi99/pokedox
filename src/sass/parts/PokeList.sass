@@ -5,6 +5,10 @@
     grid-column-gap: 1rem
     grid-row-gap: 1rem
     padding: 1rem
+    +laptop
+      grid-template-columns: 1fr 1fr
+    +phone
+      grid-template-columns: 1fr
 
   &-card
     text-align: center
@@ -24,6 +28,9 @@
         cursor: default
         &:first-child
           margin-left: 0
+        +desktop
+          padding: .5rem
+          font-size: .8rem
 
   &-pagination
     padding: 3rem 0

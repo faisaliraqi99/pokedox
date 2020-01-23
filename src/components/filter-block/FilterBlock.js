@@ -7,28 +7,30 @@ import PokeStore from '../../store/PokeStore'
 const { Search } = Input
 const { Option } = Select
 
-function SideBar () {
+function FilterBlock () {
   return (
-    <div className="side-bar">
+    <div className="filter-block">
       <Search
-        className="side-bar__searchNameInput"
+        className="filter-block__searchNameInput"
         placeholder="Search by name"
         onChange={event => PokeStore.setFilterSearchName(event.target.value)}
       />
       <Select
-        className="side-bar__typeSelect"
+        className="filter-block__typeSelect"
         mode="multiple"
         placeholder="Filter types"
         onChange={arr => PokeStore.setFilterTypes(arr)}
+        getPopupContainer={triggerNode => triggerNode.parentNode}
       >
         {PokeStore.typesOption.map((item, index) => (
           <Option value={item} key={index}>{item}</Option>
         ))}
       </Select>
       <Select
-        className="side-bar__typeSelect"
+        className="filter-block__typeSelect"
         placeholder="Select items per page"
         onChange={limit => PokeStore.setLimit(limit)}
+        getPopupContainer={triggerNode => triggerNode.parentNode}
       >
         <Option value="10">10</Option>
         <Option value="20">20</Option>
@@ -38,4 +40,4 @@ function SideBar () {
   )
 }
 
-export default observer(SideBar)
+export default observer(FilterBlock)
